@@ -27,7 +27,7 @@ export function BridgeTokens({ action = Actions.Deposit }) {
 
   return (
     <Form
-      defaultValues={{ amount: 0.0001 }}
+      // defaultValues={{ amount: 0.0001 }}
       schema={BridgeSchema}
       onSubmit={(values) => {
         const amount = ethers.utils.parseEther(`${values.amount}`);
