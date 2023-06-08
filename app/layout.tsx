@@ -37,8 +37,9 @@ function Header() {
     <header className="flex p-2 bg-white">
       <div className="w-32 h-12 bg-gray-300" />
       <nav className="flex items-center ml-12">
-        {items.map((item, key) => (
+        {items.map((item) => (
           <Link
+            key={item.href}
             href={item.href}
             className="text-gray-600 hover:text-gray-900 font-bold text-sm px-4 flex items-center h-full"
           >

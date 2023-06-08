@@ -44,37 +44,6 @@ export const Input = createComponent("input", input);
 export const Label = createComponent("label", label);
 export const Select = createComponent("select", select);
 
-export const FormControl = ({
-  name,
-  label,
-  hint,
-  children,
-  className,
-}: {
-  name: string;
-  label: string;
-  hint?: string;
-} & ComponentPropsWithoutRef<"fieldset">) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-
-  const error = errors[name];
-  return (
-    <fieldset className={clsx("mb-2 flex-1", className)}>
-      <Label htmlFor={name}>{label}</Label>
-      {cloneElement(children as ReactElement, { id: name, ...register(name) })}
-      {hint ? <div className="pt-1 text-xs text-gray-500">{hint}</div> : null}
-      {error ? (
-        <div className="pt-1 text-xs text-red-500">
-          {error.message as string}
-        </div>
-      ) : null}
-    </fieldset>
-  );
-};
-
 export interface FormProps<S extends z.ZodType<any, any>>
   extends PropsWithChildren {
   defaultValues?: UseFormProps<z.infer<S>>["defaultValues"];

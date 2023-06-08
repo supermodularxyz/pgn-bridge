@@ -26,12 +26,10 @@ export const createComponent = (
       { as, className, ...props }: ComponentProps<C>,
       ref?: PolymorphicRef<C>
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const Component = as || tag;
       return (
         <Component
           ref={ref}
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           className={variant({ class: className, ...props })}
           {...props}
         />

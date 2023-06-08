@@ -1,7 +1,7 @@
 import { Chain } from "wagmi/chains";
 
 export const pgn = {
-  id: 10, // What chain id?
+  id: 58008,
   name: "PGN",
   network: "pgn",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
