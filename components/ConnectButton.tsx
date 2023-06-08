@@ -6,8 +6,20 @@ import { Button } from "./ui/Button";
 export function ConnectWallet() {
   return (
     <ConnectButton.Custom>
-      {({}) => {
-        return <Button color="primary">Connect wallet</Button>;
+      {({
+        account,
+        chain,
+        openAccountModal,
+        openChainModal,
+        openConnectModal,
+        authenticationStatus,
+        mounted,
+      }) => {
+        return (
+          <Button color="primary" onClick={openConnectModal}>
+            Connect wallet
+          </Button>
+        );
       }}
     </ConnectButton.Custom>
   );
