@@ -102,7 +102,9 @@ function TransferTokens({}) {
         />
         <Select className="bg-white" {...form.register("token")}>
           {tokens.map((token) => (
-            <option value={token.l1Address}>{token.name}</option>
+            <option key={token.l1Address} value={token.l1Address}>
+              {token.name}
+            </option>
           ))}
         </Select>
       </div>
