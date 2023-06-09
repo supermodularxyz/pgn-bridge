@@ -6,6 +6,7 @@ const tab = tv({
   base: "flex flex-1 justify-center p-2 hover:bg-gray-50 text-gray-600",
   variants: {
     active: { true: "bg-white text-gray-900 font-bold" },
+    disabled: { true: "cursor-not-allowed opacity-50" },
   },
 });
 

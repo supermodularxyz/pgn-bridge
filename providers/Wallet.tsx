@@ -17,12 +17,33 @@ import {
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { sepolia } from "wagmi/chains";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import site from "@/config/site";
+import { ethers } from "ethers";
+import { pgn } from "@/config/chain";
 
 const projectId = "PGN";
 
-const { chains, provider } = configureChains([sepolia], [publicProvider()]);
+const { chains, provider } = configureChains(
+  [sepolia, pgn],
+  [
+    jsonRpcProvider({
+      rpc: (chain) => {
+        console.log(chain);
+        const http = {
+          pgn: "https://l2-pgn-sepolia-i4td3ji6i0.t.conduit.xyz",
+          sepolia: `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
+        }[chain.network];
+
+        console.log({ http });
+        return {
+          http,
+        };
+      },
+    }),
+  ]
+);
 
 const { wallets } = getDefaultWallets({
   appName: site.title,
