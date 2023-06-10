@@ -57,8 +57,10 @@ export function useDeposit() {
         l2Address,
         amount
       );
+
       pushLog(`Waiting for transaction with hash: ${allowance.hash}`);
       await allowance.wait();
+
       pushLog("Depositing ERC20...");
       res = await crossChainMessenger.depositERC20(
         l1Address,
@@ -73,11 +75,13 @@ export function useDeposit() {
     }
     pushLog(`Transaction hash (on L1): ${res.hash}`);
     await res.wait();
+
     pushLog("Waiting for status to change to RELAYED");
     await crossChainMessenger.waitForMessageStatus(
       res.hash,
       MessageStatus.RELAYED
     );
+
     pushLog("Deposit successful!");
 
     return res;
@@ -90,15 +94,18 @@ export function useDeposit() {
 
 export function useWithdraw() {
   const { crossChainMessenger } = usePGN();
+  const [log, pushLog, resetLog] = useTransactionLog();
   return useMutation(async ({ amount, token }: Transfer) => {
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
 
+    resetLog();
     const { l1Address, l2Address } = token || {};
     let res;
     // Withdraw ERC20 tokens
     if (l1Address && l2Address) {
+      pushLog(`Withdrawing ERC20...`);
       res = await crossChainMessenger.withdrawERC20(
         l1Address,
         l2Address,
@@ -107,27 +114,35 @@ export function useWithdraw() {
     }
     // Withdraw ETH
     else {
+      pushLog(`Withdrawing ETH...`);
       res = await crossChainMessenger.withdrawETH(amount);
     }
-    console.log(`Transaction hash (on L2): ${res.hash}`);
+    pushLog(`Transaction hash (on L2): ${res.hash}`);
     await res.wait();
 
-    console.log("Waiting for status to be READY_TO_PROVE");
+    pushLog("Waiting for status to be READY_TO_PROVE");
     await crossChainMessenger.waitForMessageStatus(
       res.hash,
       MessageStatus.READY_TO_PROVE
     );
+
+    pushLog("Proving message...");
     await crossChainMessenger.proveMessage(res.hash);
 
-    console.log("In the challenge period, waiting for status READY_FOR_RELAY");
+    pushLog("In the challenge period, waiting for status READY_FOR_RELAY");
     await crossChainMessenger.waitForMessageStatus(
       res.hash,
       MessageStatus.READY_FOR_RELAY
     );
-    console.log("Ready for relay, finalizing message now");
+
+    pushLog("Ready for relay, finalizing message...");
     await crossChainMessenger.finalizeMessage(res);
-    console.log("Waiting for status to change to RELAYED");
+
+    pushLog("Waiting for status to change to RELAYED");
     await crossChainMessenger.waitForMessageStatus(res, MessageStatus.RELAYED);
+
+    pushLog("Withdraw successful!");
+
     return res;
   });
 }
