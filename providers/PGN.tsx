@@ -4,16 +4,16 @@ import {
   createContext,
   useContext,
   useEffect,
+  useReducer,
   useState,
 } from "react";
 
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { getOptimismConfiguration } from "@conduitxyz/sdk";
-import { Address, sepolia, useConnect, useProvider, useSigner } from "wagmi";
+import { sepolia, useProvider, useSigner } from "wagmi";
 import { pgn } from "@/config/chain";
 import { useMutation } from "@tanstack/react-query";
 import { BigNumber } from "ethers";
-import tokens from "@/config/tokens";
 
 const Context = createContext<{
   crossChainMessenger?: CrossChainMessenger;
@@ -21,65 +21,94 @@ const Context = createContext<{
 
 export const usePGN = () => useContext(Context);
 
+type Transfer = {
+  amount: BigNumber;
+  token?: { l1Address: string; l2Address: string; name: string };
+};
+
+function useTransactionLog() {
+  const [log, setLog] = useState<any>([]);
+
+  return [
+    log,
+    (msg: string): void =>
+      setLog((s: any) => {
+        console.log(msg);
+        return [...s, msg];
+      }),
+    () => setLog([]),
+  ];
+}
 export function useDeposit() {
   const { crossChainMessenger } = usePGN();
-  return useMutation(
-    async ({
-      amount,
-      token,
-    }: {
-      amount: BigNumber;
-      token?: { l1Address: string; l2Address: string; name: string };
-    }) => {
-      if (!crossChainMessenger) {
-        throw new Error("CrossChainMessenger not initialized");
-      }
-
-      const { l1Address, l2Address } = token || {};
-      let res;
-      console.log({ l1Address, l2Address, amount });
-      // Deposit ERC20 tokens
-      if (l1Address && l2Address) {
-        console.log(crossChainMessenger);
-        console.log("Approving ERC20");
-        const allowance = await crossChainMessenger.approveERC20(
-          l1Address,
-          l2Address,
-          amount
-        );
-        await allowance.wait();
-        console.log("Depositing ERC20");
-        res = await crossChainMessenger.depositERC20(
-          l1Address,
-          l2Address,
-          amount
-        );
-      }
-      // Deposit ETH
-      else {
-        res = await crossChainMessenger.depositETH(amount, {});
-        console.log(`Transaction hash (on L1): ${res.hash}`);
-      }
-      await res.wait();
-      console.log("Waiting for status to change to RELAYED");
-      await crossChainMessenger.waitForMessageStatus(
-        res.hash,
-        MessageStatus.RELAYED
-      );
-
-      return res;
+  const [log, pushLog, resetLog] = useTransactionLog();
+  const deposit = useMutation(async ({ amount, token }: Transfer) => {
+    if (!crossChainMessenger) {
+      throw new Error("CrossChainMessenger not initialized");
     }
-  );
+    resetLog();
+    const { l1Address, l2Address } = token || {};
+    let res;
+    // Deposit ERC20 tokens
+    if (l1Address && l2Address) {
+      pushLog("Approving ERC20...");
+      const allowance = await crossChainMessenger.approveERC20(
+        l1Address,
+        l2Address,
+        amount
+      );
+      pushLog(`Waiting for transaction with hash: ${allowance.hash}`);
+      await allowance.wait();
+      pushLog("Depositing ERC20...");
+      res = await crossChainMessenger.depositERC20(
+        l1Address,
+        l2Address,
+        amount
+      );
+    }
+    // Deposit ETH
+    else {
+      pushLog(`Depositing ETH...`);
+      res = await crossChainMessenger.depositETH(amount, {});
+    }
+    pushLog(`Transaction hash (on L1): ${res.hash}`);
+    await res.wait();
+    pushLog("Waiting for status to change to RELAYED");
+    await crossChainMessenger.waitForMessageStatus(
+      res.hash,
+      MessageStatus.RELAYED
+    );
+    pushLog("Deposit successful!");
+
+    return res;
+  });
+  return {
+    ...deposit,
+    log,
+  };
 }
 
 export function useWithdraw() {
   const { crossChainMessenger } = usePGN();
-  return useMutation(async (amount: BigNumber) => {
+  return useMutation(async ({ amount, token }: Transfer) => {
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
 
-    const res = await crossChainMessenger.withdrawETH(amount);
+    const { l1Address, l2Address } = token || {};
+    let res;
+    // Withdraw ERC20 tokens
+    if (l1Address && l2Address) {
+      res = await crossChainMessenger.withdrawERC20(
+        l1Address,
+        l2Address,
+        amount
+      );
+    }
+    // Withdraw ETH
+    else {
+      res = await crossChainMessenger.withdrawETH(amount);
+    }
     console.log(`Transaction hash (on L2): ${res.hash}`);
     await res.wait();
 
@@ -104,33 +133,37 @@ export function useWithdraw() {
 }
 
 const CONDUIT_SLUG =
-  process.env.NEXT_PUBLIC_CONDUIT_SLUG || "conduit:pgn-sepolia-i4td3ji6i0";
+  process.env.NEXT_PUBLIC_CONDUIT_SLUG || "pgn-sepolia-i4td3ji6i0";
 
-export function PGNProvider({ children }: PropsWithChildren) {
-  const { data: l1 } = useSigner({ chainId: sepolia.id });
-  // const { data: l2 } = useSigner({ chainId: pgn.id });
-  const l2 = useProvider({ chainId: pgn.id });
+export function useCrossChainMessenger() {
+  const { data: l1SignerOrProvider } = useSigner({ chainId: sepolia.id });
+  const l2SignerOrProvider = useProvider({ chainId: pgn.id });
+
   const [crossChainMessenger, setCrossChainMessenger] =
     useState<CrossChainMessenger>();
 
   useEffect(() => {
-    if (l1 && l2) {
-      console.log("l1", l1);
-      // const signer = l1
-      // console.log("l2", l1.connect(l2));
-
-      getOptimismConfiguration(CONDUIT_SLUG).then((config: any) => {
-        console.log(l2);
-        config.l1SignerOrProvider = l1;
-        config.l2SignerOrProvider = l2;
-        console.log(config);
-        setCrossChainMessenger(new CrossChainMessenger(config as any));
-      });
+    if (l1SignerOrProvider && l2SignerOrProvider) {
+      getOptimismConfiguration(`conduit:${CONDUIT_SLUG}`).then((config: any) =>
+        setCrossChainMessenger(
+          new CrossChainMessenger({
+            ...config,
+            l1SignerOrProvider,
+            l2SignerOrProvider,
+          })
+        )
+      );
     }
-  }, [l1, l2]);
-  const state = {
-    crossChainMessenger,
-  };
+  }, [l1SignerOrProvider, l2SignerOrProvider]);
+
+  return crossChainMessenger;
+}
+
+export function PGNProvider({ children }: PropsWithChildren) {
+  const crossChainMessenger = useCrossChainMessenger();
+
+  const state = { crossChainMessenger };
+
   console.log(state);
 
   return <Context.Provider value={state}>{children}</Context.Provider>;

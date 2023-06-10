@@ -51,8 +51,28 @@ export function BridgeTokens({ action = Actions.Deposit }) {
         {/* <TransferSummary /> */}
         <TransferAction isLoading={deposit.isLoading} />
         <MintTokens />
+        <ErrorMessage error={deposit.error} />
+        <TransferLog log={deposit.log} />
       </Card>
     </Form>
+  );
+}
+function ErrorMessage({ error }: { error: { message: string } }) {
+  if (!error?.message) return null;
+  return (
+    <div className="font-mono text-sm text-red-800 bg-red-100 whitespace-pre-wrap break-all p-2">
+      {error?.message}
+    </div>
+  );
+}
+function TransferLog({ log = [] }: { log: string[] }) {
+  if (!log.length) return null;
+  return (
+    <div className="bg-gray-900 text-gray-50 p-4 font-mono text-xs flex flex-col gap-2">
+      {log.map((msg, i) => (
+        <div key={i}>&gt; {msg}</div>
+      ))}
+    </div>
   );
 }
 
