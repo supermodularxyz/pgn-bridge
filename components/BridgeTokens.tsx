@@ -31,7 +31,7 @@ const Actions = {
 };
 export function BridgeTokens({ action = Actions.Deposit }) {
   const deposit = useDeposit();
-  // const withdraw = useWithdraw();
+  const withdraw = useWithdraw();
 
   return (
     <Form
@@ -49,14 +49,15 @@ export function BridgeTokens({ action = Actions.Deposit }) {
         <BridgeTabs active={action} />
         <TransferTokens />
         {/* <TransferSummary /> */}
-        <TransferAction isLoading={deposit.isLoading} />
+        <TransferAction action={action} isLoading={deposit.isLoading} />
         <MintTokens />
-        <ErrorMessage error={deposit.error} />
+        <ErrorMessage error={deposit.error as any} />
         <TransferLog log={deposit.log} />
       </Card>
     </Form>
   );
 }
+
 function ErrorMessage({ error }: { error: { message: string } }) {
   if (!error?.message) return null;
   return (
@@ -65,6 +66,7 @@ function ErrorMessage({ error }: { error: { message: string } }) {
     </div>
   );
 }
+
 function TransferLog({ log = [] }: { log: string[] }) {
   if (!log.length) return null;
   return (
@@ -134,7 +136,13 @@ function TransferTokens({}) {
 
 const Well = createComponent("div", tv({ base: "bg-gray-100 p-4 rounded-lg" }));
 
-function TransferAction({ isLoading }: { isLoading: boolean }) {
+function TransferAction({
+  action,
+  isLoading,
+}: {
+  action: string;
+  isLoading: boolean;
+}) {
   const { address } = useAccount();
 
   if (!address) {
@@ -142,7 +150,7 @@ function TransferAction({ isLoading }: { isLoading: boolean }) {
   }
   return (
     <Button color="primary" type="submit" disabled={isLoading}>
-      Deposit
+      {action}
     </Button>
   );
   return <Button>Enter an amount</Button>;
