@@ -1,4 +1,6 @@
-export default [
+import { Address } from "wagmi";
+
+export const tokens = [
   {
     name: "ETH",
     l1Address: "",
@@ -10,3 +12,11 @@ export default [
     l2Address: "0x7c6b91D9Be155A6Db01f749217d76fF02A7227F2",
   },
 ];
+
+export const getToken = (addr?: Address) =>
+  tokens.find((t) => t.l1Address === addr);
+
+export const getTokenForChain = (addr: Address, network: string) =>
+  getToken(addr)?.[
+    network === "pgn" ? "l2Address" : "l1Address"
+  ] as `0x${string}`;

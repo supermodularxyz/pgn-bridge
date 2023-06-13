@@ -4,22 +4,40 @@ import {
   createContext,
   useContext,
   useEffect,
-  useReducer,
   useState,
 } from "react";
 
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { getOptimismConfiguration } from "@conduitxyz/sdk";
-import { sepolia, useProvider, useSigner } from "wagmi";
+import { Chain, sepolia, useProvider, useSigner } from "wagmi";
 import { pgn } from "@/config/chain";
 import { useMutation } from "@tanstack/react-query";
 import { BigNumber } from "ethers";
 
 const Context = createContext<{
   crossChainMessenger?: CrossChainMessenger;
-}>({});
+  l1: Chain;
+  l2: Chain;
+}>({ l1: sepolia, l2: pgn });
 
 export const usePGN = () => useContext(Context);
+
+const CONDUIT_SLUG =
+  process.env.NEXT_PUBLIC_CONDUIT_SLUG || "pgn-sepolia-i4td3ji6i0";
+
+function createCrossChainMessenger({
+  l1SignerOrProvider,
+  l2SignerOrProvider,
+}: any) {
+  return getOptimismConfiguration(`conduit:${CONDUIT_SLUG}`).then(
+    (config: any) =>
+      new CrossChainMessenger({
+        ...config,
+        l1SignerOrProvider,
+        l2SignerOrProvider,
+      })
+  );
+}
 
 type Transfer = {
   amount: BigNumber;
@@ -28,7 +46,6 @@ type Transfer = {
 
 function useTransactionLog() {
   const [log, setLog] = useState<any>([]);
-
   return [
     log,
     (msg: string): void =>
@@ -39,10 +56,18 @@ function useTransactionLog() {
     () => setLog([]),
   ];
 }
+
 export function useDeposit() {
-  const { crossChainMessenger } = usePGN();
+  const { l1, l2 } = usePGN();
+  const { data: l1SignerOrProvider } = useSigner({ chainId: l1.id });
+  const l2SignerOrProvider = useProvider({ chainId: l2.id });
+
   const [log, pushLog, resetLog] = useTransactionLog();
   const deposit = useMutation(async ({ amount, token }: Transfer) => {
+    const crossChainMessenger = await createCrossChainMessenger({
+      l1SignerOrProvider,
+      l2SignerOrProvider,
+    });
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
@@ -93,9 +118,17 @@ export function useDeposit() {
 }
 
 export function useWithdraw() {
-  const { crossChainMessenger } = usePGN();
+  const { l1, l2 } = usePGN();
+
+  const l1SignerOrProvider = useProvider({ chainId: l1?.id });
+  const { data: l2SignerOrProvider } = useSigner({ chainId: l2?.id });
+
   const [log, pushLog, resetLog] = useTransactionLog();
-  return useMutation(async ({ amount, token }: Transfer) => {
+  const withdraw = useMutation(async ({ amount, token }: Transfer) => {
+    const crossChainMessenger = await createCrossChainMessenger({
+      l1SignerOrProvider,
+      l2SignerOrProvider,
+    });
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
@@ -120,39 +153,19 @@ export function useWithdraw() {
     pushLog(`Transaction hash (on L2): ${res.hash}`);
     await res.wait();
 
-    pushLog("Waiting for status to be READY_TO_PROVE");
-    await crossChainMessenger.waitForMessageStatus(
-      res.hash,
-      MessageStatus.READY_TO_PROVE
-    );
-
-    pushLog("Proving message...");
-    await crossChainMessenger.proveMessage(res.hash);
-
-    pushLog("In the challenge period, waiting for status READY_FOR_RELAY");
-    await crossChainMessenger.waitForMessageStatus(
-      res.hash,
-      MessageStatus.READY_FOR_RELAY
-    );
-
-    pushLog("Ready for relay, finalizing message...");
-    await crossChainMessenger.finalizeMessage(res);
-
-    pushLog("Waiting for status to change to RELAYED");
-    await crossChainMessenger.waitForMessageStatus(res, MessageStatus.RELAYED);
-
-    pushLog("Withdraw successful!");
+    pushLog("Withdraw successful! Transaction will be finalized in 7 days.");
 
     return res;
   });
+  return {
+    ...withdraw,
+    log,
+  };
 }
 
-const CONDUIT_SLUG =
-  process.env.NEXT_PUBLIC_CONDUIT_SLUG || "pgn-sepolia-i4td3ji6i0";
-
-export function useCrossChainMessenger() {
-  const { data: l1SignerOrProvider } = useSigner({ chainId: sepolia.id });
-  const l2SignerOrProvider = useProvider({ chainId: pgn.id });
+export function useCrossChainMessenger({ l1, l2 }: { l1: Chain; l2: Chain }) {
+  const { data: l1SignerOrProvider } = useSigner({ chainId: l1.id });
+  const l2SignerOrProvider = useProvider({ chainId: l2.id });
 
   const [crossChainMessenger, setCrossChainMessenger] =
     useState<CrossChainMessenger>();
@@ -175,9 +188,11 @@ export function useCrossChainMessenger() {
 }
 
 export function PGNProvider({ children }: PropsWithChildren) {
-  const crossChainMessenger = useCrossChainMessenger();
+  const l1 = sepolia;
+  const l2 = pgn;
+  const crossChainMessenger = useCrossChainMessenger({ l1, l2 });
 
-  const state = { crossChainMessenger };
+  const state = { crossChainMessenger, l1, l2 };
 
   console.log(state);
 

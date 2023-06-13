@@ -7,12 +7,11 @@ const button = tv({
     color: {
       ghost: "hover:bg-[rgba(255,255,255,.05)]",
       default: "bg-gray-100 hover:bg-gray-200 text-gray-900",
-      dark: "bg-gray-900 text-gray-50 hover:bg-gray-700",
-      primary: "bg-primary-900 text-primary-50 hover:bg-primary-800",
+      primary: "bg-gray-900 text-gray-50 hover:bg-gray-800",
     },
     size: {
       sm: "p-2 text-sm",
-      md: "px-4 py-2 text-md",
+      md: "px-4 py-3 text-md",
       lg: "px-5 py-3 text-lg",
       icon: ["px-1 py-1"],
     },
