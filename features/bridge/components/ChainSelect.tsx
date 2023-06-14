@@ -27,7 +27,9 @@ export function ChainSelect({
       </button>
       <div className="flex-1">
         <Label>To</Label>
-        <Well className="text-lg font-bold bg-white">{chainOut.name}</Well>
+        <Well className="text-lg font-bold bg-white text-right">
+          {chainOut.name}
+        </Well>
       </div>
     </div>
   );
