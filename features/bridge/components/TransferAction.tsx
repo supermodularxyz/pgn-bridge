@@ -7,9 +7,11 @@ import { parseEther } from "ethers/lib/utils.js";
 import { useChainBalance } from "../hooks/useChainBalance";
 
 export function TransferAction({
+  action,
   chain,
   isLoading,
 }: {
+  action: string;
   chain: Chain;
   isLoading?: boolean;
 }) {
@@ -56,7 +58,7 @@ export function TransferAction({
         type="submit"
         disabled={isLoading}
       >
-        Transfer
+        {action}
       </Button>
     );
   }

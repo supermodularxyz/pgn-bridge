@@ -53,7 +53,7 @@ export function BridgeTokens({}) {
         <TokenSelect />
         <ChainSelect chainIn={chainIn} chainOut={chainOut} />
         <TokenAmount chain={chainIn} />
-        <TransferAction chain={chainIn} isLoading={isLoading} />
+        <TransferAction action={action} chain={chainIn} isLoading={isLoading} />
         <TransferLog log={log} />
         <ErrorMessage error={error as any} />
         <MintTokens />
