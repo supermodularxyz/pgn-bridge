@@ -1,5 +1,10 @@
 import { PropsWithChildren } from "react";
-import { FormProvider, UseFormProps, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  UseFormProps,
+  UseFormReturn,
+  useForm,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tv } from "tailwind-variants";
 
@@ -8,7 +13,7 @@ import { z } from "zod";
 import { createComponent } from ".";
 
 const input = tv({
-  base: "bg-white text-gray-900 rounded focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2",
+  base: "bg-white font-bold text-gray-900 rounded focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2 disabled:opacity-50",
   variants: {
     size: {
       sm: "p-2 text-xs",
@@ -37,7 +42,7 @@ export interface FormProps<S extends z.ZodType<any, any>>
   extends PropsWithChildren {
   defaultValues?: UseFormProps<z.infer<S>>["defaultValues"];
   schema: S;
-  onSubmit: (values: z.infer<S>, reset: () => void) => void;
+  onSubmit: (values: z.infer<S>, form: UseFormReturn<any>) => void;
 }
 
 export function Form<S extends z.ZodType<any, any>>({
@@ -51,9 +56,7 @@ export function Form<S extends z.ZodType<any, any>>({
   // Pass the form methods to a FormProvider. This lets us access the form from components without passing props.
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={form.handleSubmit((values) => onSubmit(values, form.reset))}
-      >
+      <form onSubmit={form.handleSubmit((values) => onSubmit(values, form))}>
         {children}
       </form>
     </FormProvider>

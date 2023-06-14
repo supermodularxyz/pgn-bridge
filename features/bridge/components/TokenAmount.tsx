@@ -10,6 +10,7 @@ export function TokenAmount({ chain }: { chain: Chain }) {
     chain,
     token: form.watch("token"),
   });
+
   return (
     <div>
       <div className="flex justify-between">
@@ -27,6 +28,7 @@ export function TokenAmount({ chain }: { chain: Chain }) {
           size="lg"
           placeholder="0.0"
           className="flex-1"
+          disabled={form.formState.isSubmitting}
           {...form.register("amount", { valueAsNumber: true })}
         />
         <button

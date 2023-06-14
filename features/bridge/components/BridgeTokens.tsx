@@ -40,11 +40,13 @@ export function BridgeTokens({}) {
   return (
     <Form
       schema={BridgeSchema}
-      onSubmit={(values, reset) => {
+      onSubmit={(values, form) => {
         const amount = ethers.utils.parseEther(`${values.amount}`);
         const token = getToken(values.token as Address);
 
-        mutateAsync({ amount, token }).then(reset);
+        return mutateAsync({ amount, token }).then(() =>
+          form.resetField("amount")
+        );
       }}
     >
       <Card className="w-full min-w-[500px] max-w-lg flex flex-col gap-4 bg-gray-100">
@@ -72,7 +74,7 @@ function ErrorMessage({ error }: { error: { message: string } }) {
 function TransferLog({ log = [] }: { log: string[] }) {
   if (!log.length) return null;
   return (
-    <div className="bg-gray-900 text-gray-50 p-4 font-mono text-xs flex flex-col gap-2 overflow-scroll">
+    <div className="bg-gray-900 text-gray-50 p-4 font-mono text-xs flex flex-col gap-2 overflow-y-scroll">
       {log.map((msg, i) => (
         <div key={i}>&gt; {msg}</div>
       ))}

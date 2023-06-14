@@ -12,6 +12,7 @@ export function TokenSelect() {
         Asset
         <Select
           className="w-full text-lg font-bold"
+          disabled={form.formState.isSubmitting}
           {...form.register("token")}
         >
           {tokens.map((token) => (

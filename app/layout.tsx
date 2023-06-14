@@ -47,7 +47,7 @@ function Header() {
       <div className="flex container mx-auto">
         <Link
           href="/"
-          className="font-bold text-3xl text-gray-800 hover:text-primary-900"
+          className="pl-4 font-bold text-3xl text-gray-800 hover:text-primary-900"
         >
           PGN
         </Link>
