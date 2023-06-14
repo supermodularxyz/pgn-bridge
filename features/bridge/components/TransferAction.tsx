@@ -1,38 +1,24 @@
 "use client";
 import { Button } from "@/components/ui/Button";
 import { useFormContext } from "react-hook-form";
-import { usePGN } from "@/providers/PGN";
-import {
-  Chain,
-  useAccount,
-  useBalance,
-  useNetwork,
-  useSwitchNetwork,
-} from "wagmi";
+import { Chain, useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { ConnectWallet } from "@/components/ConnectButton";
 import { parseEther } from "ethers/lib/utils.js";
+import { useChainBalance } from "../hooks/useChainBalance";
 
 export function TransferAction({
-  action,
   chain,
   isLoading,
 }: {
-  action: string;
-  chain?: Chain;
+  chain: Chain;
   isLoading?: boolean;
 }) {
-  const { address, ...account } = useAccount();
   const { watch } = useFormContext();
+  const { address } = useAccount();
   const network = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
 
-  const tokenAddress = watch("token");
-  const { data } = useBalance({
-    address,
-    token: tokenAddress,
-    chainId: chain?.id,
-    enabled: Boolean(address),
-  });
+  const { value } = useChainBalance({ chain, token: watch("token") });
 
   if (!address || network.chain?.unsupported) {
     return <ConnectWallet className="w-full" />;
@@ -60,7 +46,7 @@ export function TransferAction({
     );
   }
 
-  const balanceOverAmount = data?.value.gte(parseEther(String(amount)));
+  const balanceOverAmount = value?.gte(parseEther(String(amount)));
 
   if (balanceOverAmount) {
     return (
@@ -70,7 +56,7 @@ export function TransferAction({
         type="submit"
         disabled={isLoading}
       >
-        {action}
+        Transfer
       </Button>
     );
   }

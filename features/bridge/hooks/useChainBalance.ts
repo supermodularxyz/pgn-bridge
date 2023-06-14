@@ -19,6 +19,7 @@ export function useChainBalance({
   });
 
   return {
+    value: data?.value,
     balance: data?.formatted,
     symbol: data?.symbol,
   };

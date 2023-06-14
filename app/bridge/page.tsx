@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { BridgeTokens } from "@/features/bridge/components/BridgeTokens";
 
-export default function Bridge() {
-  redirect("/bridge/deposit");
+export default function Deposit() {
+  return <BridgeTokens />;
 }

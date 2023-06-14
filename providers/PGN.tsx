@@ -139,6 +139,7 @@ export function useWithdraw() {
     // Withdraw ERC20 tokens
     if (l1Address && l2Address) {
       pushLog(`Withdrawing ERC20...`);
+
       res = await crossChainMessenger.withdrawERC20(
         l1Address,
         l2Address,
