@@ -56,7 +56,7 @@ export function ConnectWallet(props: ComponentPropsWithoutRef<"button">) {
                     type="button"
                     {...props}
                   >
-                    Wrong network
+                    Switch network
                   </Button>
                 );
               }
