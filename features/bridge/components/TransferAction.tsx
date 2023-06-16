@@ -5,6 +5,7 @@ import { Chain, useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { ConnectWallet } from "@/components/ConnectButton";
 import { parseEther } from "ethers/lib/utils.js";
 import { useChainBalance } from "../hooks/useChainBalance";
+import { Alert } from "@/components/ui/Alert";
 
 export function TransferAction({
   action,
@@ -23,7 +24,14 @@ export function TransferAction({
   const { value } = useChainBalance({ chain, token: watch("token") });
 
   if (!address || network.chain?.unsupported) {
-    return <ConnectWallet className="w-full" />;
+    return (
+      <>
+        {network.chain?.unsupported ? (
+          <Alert variant="error">{`You're on the wrong network. Please switch to ${chain.name}.`}</Alert>
+        ) : null}
+        <ConnectWallet className="w-full" />
+      </>
+    );
   }
 
   if (chain?.id !== network.chain?.id) {
@@ -47,8 +55,8 @@ export function TransferAction({
       </Button>
     );
   }
-
-  const balanceOverAmount = value?.gte(parseEther(String(amount)));
+  const balanceOverAmount =
+    amount && value?.gte(parseEther(String(parseFloat(amount).toFixed(18))));
 
   if (balanceOverAmount) {
     return (

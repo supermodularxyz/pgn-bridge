@@ -154,6 +154,14 @@ export function useWithdraw() {
     pushLog(`Transaction hash (on L2): ${res.hash}`);
     await res.wait();
 
+    // pushLog("Waiting for status to be READY_TO_PROVE");
+    // await crossChainMessenger.waitForMessageStatus(
+    //   res.hash,
+    //   MessageStatus.READY_TO_PROVE
+    // );
+    // pushLog(`Proving message...`);
+    // await crossChainMessenger.proveMessage(res.hash);
+
     pushLog("Withdraw successful! Transaction will be finalized in 7 days.");
 
     return res;
@@ -194,8 +202,6 @@ export function PGNProvider({ children }: PropsWithChildren) {
   const crossChainMessenger = useCrossChainMessenger({ l1, l2 });
 
   const state = { crossChainMessenger, l1, l2 };
-
-  console.log(state);
 
   return <Context.Provider value={state}>{children}</Context.Provider>;
 }

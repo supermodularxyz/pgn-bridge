@@ -8,7 +8,6 @@ const button = tv({
       ghost: "hover:bg-[rgba(255,255,255,.05)]",
       default: "bg-gray-200 hover:bg-gray-100 text-gray-900",
       primary: "bg-gray-900 text-gray-50 hover:bg-gray-800",
-      danger: "bg-red-700 text-red-50 hover:bg-red-600",
     },
     size: {
       sm: "p-2 text-sm",

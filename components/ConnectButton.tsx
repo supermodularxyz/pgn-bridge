@@ -23,7 +23,6 @@ export function ConnectWallet(props: ComponentPropsWithoutRef<"button">) {
           chain &&
           (!authenticationStatus || authenticationStatus === "authenticated");
 
-        console.log("chain", chain);
         return (
           <div
             {...(!ready && {
@@ -52,7 +51,7 @@ export function ConnectWallet(props: ComponentPropsWithoutRef<"button">) {
               if (chain.unsupported) {
                 return (
                   <Button
-                    color="danger"
+                    color="primary"
                     onClick={openChainModal}
                     type="button"
                     {...props}

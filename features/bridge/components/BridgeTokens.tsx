@@ -15,6 +15,7 @@ import { MintTokens } from "./MintTestTokens";
 import { TokenAmount } from "./TokenAmount";
 import { TokenSelect } from "./TokenSelect";
 import { TransferAction } from "./TransferAction";
+import { Alert } from "@/components/ui/Alert";
 
 export function BridgeTokens({}) {
   const deposit = useDeposit();
@@ -25,7 +26,6 @@ export function BridgeTokens({}) {
 
   const action =
     network.chain?.network === "pgn" ? Actions.Withdraw : Actions.Deposit;
-
   const chains = {
     [Actions.Deposit]: { in: l1, out: l2 },
     [Actions.Withdraw]: { in: l2, out: l1 },
@@ -62,10 +62,10 @@ export function BridgeTokens({}) {
   );
 }
 
-function ErrorMessage({ error }: { error: { message: string } }) {
+function ErrorMessage({ error }: { error?: { message: string } }) {
   if (!error?.message) return null;
   return (
-    <div className="font-mono text-sm text-red-800 bg-red-100 whitespace-pre-wrap break-all p-2">
+    <div className="font-mono text-sm text-red-900 bg-red-100 whitespace-pre-wrap break-all p-2">
       {error?.message}
     </div>
   );
