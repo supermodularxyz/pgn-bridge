@@ -51,7 +51,12 @@ export function ConnectWallet(props: ComponentPropsWithoutRef<"button">) {
 
               if (chain.unsupported) {
                 return (
-                  <Button onClick={openChainModal} type="button" {...props}>
+                  <Button
+                    color="danger"
+                    onClick={openChainModal}
+                    type="button"
+                    {...props}
+                  >
                     Wrong network
                   </Button>
                 );

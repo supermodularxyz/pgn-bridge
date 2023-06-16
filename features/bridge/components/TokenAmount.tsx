@@ -4,10 +4,21 @@ import { useFormContext } from "react-hook-form";
 import { Chain } from "wagmi";
 import { useChainBalance } from "../hooks/useChainBalance";
 
-export function TokenAmount({ chain }: { chain: Chain }) {
+export function TokenAmount({
+  chainIn,
+  chainOut,
+}: {
+  chainIn: Chain;
+  chainOut: Chain;
+}) {
   const form = useFormContext();
-  const { balance, symbol } = useChainBalance({
-    chain,
+
+  const balanceIn = useChainBalance({
+    chain: chainIn,
+    token: form.watch("token"),
+  });
+  const balanceOut = useChainBalance({
+    chain: chainOut,
     token: form.watch("token"),
   });
 
@@ -16,7 +27,7 @@ export function TokenAmount({ chain }: { chain: Chain }) {
       <div className="flex justify-between">
         <Label htmlFor="amount">Amount</Label>
         <div className="text-gray-500 text-sm tracking-wider">
-          Balance: {balance?.slice(0, 6)} {symbol}
+          Balance: {balanceIn.balance?.slice(0, 6)} {balanceIn.symbol}
         </div>
       </div>
       <div className="flex relative gap-2 mb-1">
@@ -32,7 +43,7 @@ export function TokenAmount({ chain }: { chain: Chain }) {
           {...form.register("amount", { valueAsNumber: true })}
         />
         <button
-          onClick={() => form.setValue("amount", balance)}
+          onClick={() => form.setValue("amount", balanceIn.balance)}
           type="button"
           className="p-2 h-10 w-16 absolute right-1 top-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
         >
@@ -40,7 +51,7 @@ export function TokenAmount({ chain }: { chain: Chain }) {
         </button>
       </div>
       <div className="text-sm text-gray-500 tracking-wider">
-        You will receive: {form.watch("amount") || 0} {symbol}
+        You will receive: {form.watch("amount") || 0} {balanceOut.symbol}
       </div>
     </div>
   );

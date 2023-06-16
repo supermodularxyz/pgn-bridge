@@ -13,7 +13,7 @@ export function useChainBalance({
   const { data } = useBalance({
     address,
     chainId: chain?.id,
-    token: getTokenForChain(token, chain.network),
+    token: getTokenForChain(token, chain?.network),
     watch: true,
     enabled: Boolean(address && chain?.id),
   });

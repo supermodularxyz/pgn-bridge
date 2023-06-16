@@ -52,7 +52,7 @@ export function BridgeTokens({}) {
       <Card className="w-full min-w-[500px] max-w-lg flex flex-col gap-4 bg-gray-100">
         <TokenSelect />
         <ChainSelect chainIn={chainIn} chainOut={chainOut} />
-        <TokenAmount chain={chainIn} />
+        <TokenAmount chainIn={chainIn} chainOut={chainOut} />
         <TransferAction action={action} chain={chainIn} isLoading={isLoading} />
         <TransferLog log={log} />
         <ErrorMessage error={error as any} />
