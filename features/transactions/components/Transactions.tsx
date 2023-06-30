@@ -76,7 +76,9 @@ const TransactionsTable = () => {
 
 const withdrawStatusMap = {
   2: "Waiting for state root",
+  3: "Ready to prove",
   4: "In challenge period",
+  5: "Ready to relay",
   6: "Relayed",
 };
 const TransactionRow = ({ transactionHash }: TokenBridgeMessage) => {
