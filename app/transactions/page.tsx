@@ -1,5 +1,5 @@
-import { TransactionTable } from "@/features/transactions/components/TransactionsTrable";
+import { Transactions } from "@/features/transactions/components/Transactions";
 
-export default function Transactions() {
-  return <TransactionTable />;
+export default function TransactionsPage() {
+  return <Transactions />;
 }
