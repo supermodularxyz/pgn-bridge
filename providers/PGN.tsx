@@ -9,10 +9,18 @@ import {
 
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { getOptimismConfiguration } from "@conduitxyz/sdk";
-import { Chain, sepolia, useProvider, useSigner } from "wagmi";
+import {
+  Address,
+  Chain,
+  sepolia,
+  useAccount,
+  useProvider,
+  useSigner,
+} from "wagmi";
 import { pgn } from "@/config/chain";
-import { useMutation } from "@tanstack/react-query";
-import { BigNumber } from "ethers";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { BigNumber, Signer } from "ethers";
+import { Provider } from "@ethersproject/providers";
 
 const Context = createContext<{
   crossChainMessenger?: CrossChainMessenger;
@@ -36,6 +44,27 @@ function createCrossChainMessenger({
         l1SignerOrProvider,
         l2SignerOrProvider,
       })
+  );
+}
+
+function useMessenger() {
+  const { l1, l2 } = usePGN();
+  const l1SignerOrProvider = useProvider({ chainId: l1?.id });
+  const { data: l2SignerOrProvider } = useSigner({ chainId: l2?.id });
+
+  return useQuery(
+    ["crosschain-messenger"],
+    async () => {
+      return createCrossChainMessenger({
+        l1SignerOrProvider,
+        l2SignerOrProvider,
+      });
+    },
+    {
+      enabled:
+        Provider.isProvider(l1SignerOrProvider) &&
+        Signer.isSigner(l2SignerOrProvider),
+    }
   );
 }
 
@@ -172,6 +201,38 @@ export function useWithdraw() {
   };
 }
 
+export function useWithdrawals() {
+  const { address } = useAccount();
+  const { data: messenger } = useMessenger();
+  return useQuery(
+    ["withdrawals", address],
+    async () => messenger?.getWithdrawalsByAddress(address as string),
+
+    {
+      enabled: Boolean(address && messenger),
+    }
+  );
+}
+
+export function useWithdrawalReceipt(hash: string, status: number) {
+  const { data: messenger } = useMessenger();
+  console.log(hash);
+  return useQuery(
+    ["withdrawal-receipt", hash],
+    async () => (status > 4 ? messenger?.getMessageReceipt(hash) : undefined),
+    { enabled: Boolean(messenger) }
+  );
+}
+
+export function useWithdrawalStatus(hash: string) {
+  const { data: messenger } = useMessenger();
+  return useQuery(
+    ["withdrawal-status", hash],
+    async () => messenger?.getMessageStatus(hash),
+    { enabled: Boolean(messenger) }
+  );
+}
+
 export function useCrossChainMessenger({ l1, l2 }: { l1: Chain; l2: Chain }) {
   const { data: l1SignerOrProvider } = useSigner({ chainId: l1.id });
   const l2SignerOrProvider = useProvider({ chainId: l2.id });
@@ -199,9 +260,8 @@ export function useCrossChainMessenger({ l1, l2 }: { l1: Chain; l2: Chain }) {
 export function PGNProvider({ children }: PropsWithChildren) {
   const l1 = sepolia;
   const l2 = pgn;
-  const crossChainMessenger = useCrossChainMessenger({ l1, l2 });
 
-  const state = { crossChainMessenger, l1, l2 };
+  const state = { l1, l2 };
 
   return <Context.Provider value={state}>{children}</Context.Provider>;
 }
