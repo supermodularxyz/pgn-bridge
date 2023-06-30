@@ -31,7 +31,7 @@ const { chains, provider } = configureChains(
     jsonRpcProvider({
       rpc: (chain) => {
         const http = {
-          pgn: "https://l2-pgn-sepolia-i4td3ji6i0.t.conduit.xyz",
+          pgn: pgn.rpcUrls.default.http[0],
           sepolia: `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
         }[chain.network] as string;
 
