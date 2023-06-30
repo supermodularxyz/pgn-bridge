@@ -1,5 +1,5 @@
 import { BridgeTokens } from "@/features/bridge/components/BridgeTokens";
 
-export default function Deposit() {
+export default function Bridge() {
   return <BridgeTokens />;
 }

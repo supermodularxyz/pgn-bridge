@@ -49,7 +49,7 @@ export function BridgeTokens({}) {
         );
       }}
     >
-      <Card className="w-full min-w-[500px] max-w-lg flex flex-col gap-4 bg-gray-100">
+      <Card className="w-full min-w-[500px] max-w-lg flex flex-col gap-4">
         <TokenSelect />
         <ChainSelect chainIn={chainIn} chainOut={chainOut} />
         <TokenAmount chainIn={chainIn} chainOut={chainOut} />
