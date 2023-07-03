@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageStatus } from "@eth-optimism/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { BigNumber } from "ethers";
-import { useCrossChainMessenger } from "@/providers/PGN/PGNProvider";
+import { useCrossChainMessenger } from "./crossChainMessenger";
 
 function useTransactionLog() {
   const [log, setLog] = useState<any>([]);

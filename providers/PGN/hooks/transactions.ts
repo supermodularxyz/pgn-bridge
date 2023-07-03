@@ -1,7 +1,7 @@
 "use client";
 import { useAccount } from "wagmi";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCrossChainMessenger } from "@/providers/PGN/PGNProvider";
+import { useCrossChainMessenger } from "./crossChainMessenger";
 
 export function useChallengePeriod() {
   const { data: crossChainMessenger } = useCrossChainMessenger({
