@@ -62,7 +62,7 @@ export function useCrossChainMessenger({
   }
 
   return useQuery(
-    ["crosschain-messenger", { l1AsSigner, readonly, enabled }],
+    ["crosschain-messenger", { l1AsSigner, readonly }],
     async () =>
       createCrossChainMessenger({ l1SignerOrProvider, l2SignerOrProvider }),
     { enabled: Boolean(l1SignerOrProvider && l2SignerOrProvider) }
