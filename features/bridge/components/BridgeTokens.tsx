@@ -6,7 +6,8 @@ import { getToken } from "@/config/tokens";
 import { Card } from "@/components/ui/Card";
 import { Form } from "@/components/ui/Form";
 
-import { useDeposit, usePGN, useWithdraw } from "@/providers/PGN";
+import { usePGN } from "@/providers/PGN/PGNProvider";
+import { useDeposit, useWithdraw } from "@/providers/PGN/hooks/bridge";
 
 import { Actions, BridgeSchema } from "../schema";
 
@@ -15,7 +16,6 @@ import { MintTokens } from "./MintTestTokens";
 import { TokenAmount } from "./TokenAmount";
 import { TokenSelect } from "./TokenSelect";
 import { TransferAction } from "./TransferAction";
-import { Alert } from "@/components/ui/Alert";
 
 export function BridgeTokens({}) {
   const deposit = useDeposit();

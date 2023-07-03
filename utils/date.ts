@@ -1,18 +1,21 @@
-import { formatDistanceToNow, isValid } from "date-fns";
+import { formatDistanceToNow, isPast, isValid } from "date-fns";
 import locale from "date-fns/locale/en-US";
 
-export const timeAgo = (date: string, opts = { short: true }) => {
+export const timeAgo = (date: string | number, opts = { short: true }) => {
   if (!isValid(new Date(date))) {
     return null;
   }
   const d = new Date(date);
-  return formatDistanceToNow(d, {
+  const now = new Date();
+  const distance = formatDistanceToNow(d, {
     addSuffix: !opts.short,
     locale: {
       ...locale,
       formatDistance: opts.short ? formatDistance : locale.formatDistance,
     },
   });
+
+  return `${distance} ${isPast(d) ? "ago" : ""}`;
 };
 
 const formatDistance = (token: string, count: string) =>

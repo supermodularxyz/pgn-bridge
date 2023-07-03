@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import site from "@/config/site";
-import { PGNProvider } from "@/providers/PGN";
+import { PGNProvider } from "@/providers/PGN/PGNProvider";
 import { QueryProvider } from "@/providers/Query";
 import { WalletProvider } from "@/providers/Wallet";
 import { Header } from "@/components/Header";
