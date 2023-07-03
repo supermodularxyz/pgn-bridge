@@ -45,31 +45,26 @@ export function useCrossChainMessenger({
   let l1SignerOrProvider: Provider | Signer | null | undefined;
   let l2SignerOrProvider: Provider | Signer | null | undefined;
 
-  let enabled;
+  // Query transactions
   if (readonly) {
     l1SignerOrProvider = useProvider({ chainId: l1?.id });
     l2SignerOrProvider = useProvider({ chainId: l2?.id });
-    enabled =
-      Provider.isProvider(l1SignerOrProvider) &&
-      Provider.isProvider(l2SignerOrProvider);
-  } else if (l1AsSigner) {
+  }
+  // Deposit, Prove, Finalize
+  else if (l1AsSigner) {
     l1SignerOrProvider = useSigner({ chainId: l1?.id }).data;
     l2SignerOrProvider = useProvider({ chainId: l2?.id });
-    enabled =
-      Signer.isSigner(l1SignerOrProvider) &&
-      Provider.isProvider(l2SignerOrProvider);
-  } else {
+  }
+  // Withdraw
+  else {
     l1SignerOrProvider = useProvider({ chainId: l1?.id });
     l2SignerOrProvider = useSigner({ chainId: l2?.id }).data;
-    enabled =
-      Provider.isProvider(l1SignerOrProvider) &&
-      Signer.isSigner(l2SignerOrProvider);
   }
 
   return useQuery(
     ["crosschain-messenger", { l1AsSigner, readonly, enabled }],
     async () =>
       createCrossChainMessenger({ l1SignerOrProvider, l2SignerOrProvider }),
-    { enabled }
+    { enabled: Boolean(l1SignerOrProvider && l2SignerOrProvider) }
   );
 }
