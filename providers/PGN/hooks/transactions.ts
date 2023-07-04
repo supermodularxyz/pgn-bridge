@@ -11,7 +11,7 @@ export function useChallengePeriod() {
     ["challenge-period"],
     async () =>
       crossChainMessenger?.getChallengePeriodSeconds().then((n) => n * 1000),
-    { enabled: Boolean(crossChainMessenger) }
+    { enabled: Boolean(crossChainMessenger), staleTime: 60 }
   );
 }
 
@@ -39,7 +39,7 @@ export function useWithdrawalReceipt(hash: string, status: number) {
       // Get the message receipt (with L1 hash) only if it exists (status > 4)
       return status > 4 ? crossChainMessenger?.getMessageReceipt(hash) : null;
     },
-    { enabled: Boolean(crossChainMessenger && hash) }
+    { enabled: Boolean(crossChainMessenger && hash), staleTime: 30 }
   );
 }
 
@@ -52,7 +52,7 @@ export function useWithdrawalStatus(hash: string) {
     async () => {
       return crossChainMessenger?.getMessageStatus(hash);
     },
-    { enabled: Boolean(crossChainMessenger) }
+    { enabled: Boolean(crossChainMessenger), staleTime: 30 }
   );
 }
 
@@ -66,7 +66,7 @@ export function useBlock(block: number) {
       crossChainMessenger?.l2Provider
         .getBlock(block)
         .then((tx) => tx.timestamp * 1000),
-    { enabled: Boolean(block && crossChainMessenger) }
+    { enabled: Boolean(block && crossChainMessenger), staleTime: Infinity }
   );
 }
 
