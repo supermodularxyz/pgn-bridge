@@ -14,6 +14,7 @@ export function useChallengePeriod() {
     { enabled: Boolean(crossChainMessenger) }
   );
 }
+
 export function useWithdrawals() {
   const { address } = useAccount();
 
@@ -35,6 +36,7 @@ export function useWithdrawalReceipt(hash: string, status: number) {
   return useQuery(
     ["withdrawal-receipt", hash],
     async () => {
+      // Get the message receipt (with L1 hash) only if it exists (status > 4)
       return status > 4 ? crossChainMessenger?.getMessageReceipt(hash) : null;
     },
     { enabled: Boolean(crossChainMessenger && hash) }

@@ -37,7 +37,7 @@ export function useCrossChainMessenger({
   The reason we need the readonly with 2 providers is:
   - To fetch withdrawals we need to be on PGN network
   - Prove and Finalize require signing an L1 transaction
-  - Only 1 signer can be active per chain at a time
+  - Only 1 signer can be active at a time
 
   */
   const { l1, l2 } = usePGN();

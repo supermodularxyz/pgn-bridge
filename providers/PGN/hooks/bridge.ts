@@ -6,37 +6,29 @@ import { useMutation } from "@tanstack/react-query";
 import { BigNumber } from "ethers";
 import { useCrossChainMessenger } from "./crossChainMessenger";
 
-function useTransactionLog() {
-  const [log, setLog] = useState<any>([]);
-  return [
-    log,
-    (msg: string): void =>
-      setLog((s: any) => {
-        console.log(msg);
-        return [...s, msg];
-      }),
-    () => setLog([]),
-  ];
-}
-
-type Transfer = {
+type TransferRequest = {
   amount: BigNumber;
   token?: { l1Address: string; l2Address: string; name: string };
 };
 
+// Deposit L1 tokens to L2
 export function useDeposit() {
+  const [log, pushLog, resetLog] = useTransactionLog();
+
   const { data: crossChainMessenger } = useCrossChainMessenger({
     l1AsSigner: true,
   });
 
-  const [log, pushLog, resetLog] = useTransactionLog();
-  const deposit = useMutation(async ({ amount, token }: Transfer) => {
+  const deposit = useMutation(async ({ amount, token }: TransferRequest) => {
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
     resetLog();
+
     const { l1Address, l2Address } = token || {};
+
     let res;
+
     // Deposit ERC20 tokens
     if (l1Address && l2Address) {
       pushLog("Approving ERC20...");
@@ -80,18 +72,22 @@ export function useDeposit() {
   };
 }
 
+// Withdraw L2 tokens to L1
 export function useWithdraw() {
+  const [log, pushLog, resetLog] = useTransactionLog();
+
   const { data: crossChainMessenger } = useCrossChainMessenger();
 
-  const [log, pushLog, resetLog] = useTransactionLog();
-  const withdraw = useMutation(async ({ amount, token }: Transfer) => {
+  const withdraw = useMutation(async ({ amount, token }: TransferRequest) => {
     if (!crossChainMessenger) {
       throw new Error("CrossChainMessenger not initialized");
     }
 
     resetLog();
+
     const { l1Address, l2Address } = token || {};
     let res;
+
     // Withdraw ERC20 tokens
     if (l1Address && l2Address) {
       pushLog(`Withdrawing ERC20...`);
@@ -118,4 +114,18 @@ export function useWithdraw() {
     ...withdraw,
     log,
   };
+}
+
+// Keep track of log messages to show in UI
+function useTransactionLog() {
+  const [log, setLog] = useState<any>([]);
+  return [
+    log,
+    (msg: string): void =>
+      setLog((s: any) => {
+        console.log(msg);
+        return [...s, msg];
+      }),
+    () => setLog([]),
+  ];
 }
