@@ -23,6 +23,7 @@ import { networks } from "@/config/networks";
 
 const projectId = "PGN";
 
+const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 const infuraKey = process.env.NEXT_PUBLIC_INFURA_API_KEY;
 const configuredNetworks = Object.values(networks);
 
@@ -37,8 +38,8 @@ const { chains, provider } = configureChains(configuredNetworks, [
       const current = chain.network as keyof typeof providers;
       const { rpcUrls } = providers[current];
 
-      const http = rpcUrls.infura
-        ? `${rpcUrls.infura.http[0]}/${infuraKey}`
+      const http = rpcUrls.alchemy
+        ? `${rpcUrls.alchemy.http[0]}/${alchemyKey}`
         : rpcUrls.public.http[0];
 
       return { http };
