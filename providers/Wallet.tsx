@@ -15,31 +15,36 @@ import {
   ledgerWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { publicProvider } from "wagmi/providers/public";
-import { sepolia } from "wagmi/chains";
+import { Chain } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import site from "@/config/site";
-import { ethers } from "ethers";
-import { pgn } from "@/config/chain";
+import { networks } from "@/config/networks";
 
 const projectId = "PGN";
 
-const { chains, provider } = configureChains(
-  [sepolia, pgn],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        const http = {
-          pgn: pgn.rpcUrls.default.http[0],
-          sepolia: `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
-        }[chain.network] as string;
+const infuraKey = process.env.NEXT_PUBLIC_INFURA_API_KEY;
+const configuredNetworks = Object.values(networks);
 
-        return { http };
-      },
-    }),
-  ]
-);
+const { chains, provider } = configureChains(configuredNetworks, [
+  jsonRpcProvider({
+    rpc: (chain) => {
+      const providers = configuredNetworks.reduce(
+        (acc, x) => ({ ...acc, [x.network]: x }),
+        {} as { [chain: string]: Chain }
+      );
+
+      const current = chain.network as keyof typeof providers;
+      const { rpcUrls } = providers[current];
+
+      const http = rpcUrls.infura
+        ? `${rpcUrls.infura.http[0]}/${infuraKey}`
+        : rpcUrls.public.http[0];
+
+      return { http };
+    },
+  }),
+]);
 
 const { wallets } = getDefaultWallets({
   appName: site.title,

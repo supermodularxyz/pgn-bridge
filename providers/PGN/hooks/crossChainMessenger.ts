@@ -7,8 +7,7 @@ import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import { usePGN } from "../PGNProvider";
 
-const CONDUIT_SLUG =
-  process.env.NEXT_PUBLIC_CONDUIT_SLUG || "pgn-sepolia-i4td3ji6i0";
+const CONDUIT_SLUG = process.env.NEXT_PUBLIC_CONDUIT_SLUG;
 
 function createCrossChainMessenger({
   l1SignerOrProvider,

@@ -25,7 +25,7 @@ export function BridgeTokens({}) {
   const { l1, l2 } = usePGN();
 
   const action =
-    network.chain?.network === "pgn" ? Actions.Withdraw : Actions.Deposit;
+    network.chain?.network === l2.network ? Actions.Withdraw : Actions.Deposit;
   const chains = {
     [Actions.Deposit]: { in: l1, out: l2 },
     [Actions.Withdraw]: { in: l2, out: l1 },
