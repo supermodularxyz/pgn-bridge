@@ -4,6 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
 
+const isStaging = process.env.NEXT_PUBLIC_IS_STAGING;
 export function Header() {
   const pathname = usePathname();
 
@@ -22,9 +23,12 @@ export function Header() {
       <div className="flex container mx-auto">
         <Link
           href="/"
-          className="pl-4 font-bold text-3xl text-gray-800 hover:text-primary-900"
+          className="relative pl-4 font-bold text-3xl text-gray-800 hover:text-primary-900"
         >
           PGN
+          {isStaging ? (
+            <small className="bottom-1 text-xs absolute">staging</small>
+          ) : null}
         </Link>
         <nav className="flex items-center ml-12">
           {items.map((item) => (
