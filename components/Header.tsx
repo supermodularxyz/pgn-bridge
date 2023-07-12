@@ -3,8 +3,10 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
+import { pgnTestnet } from "@/config/chain";
 
-const isStaging = process.env.NEXT_PUBLIC_IS_STAGING;
+const isStaging = process.env.NEXT_PUBLIC_L2 === pgnTestnet.network;
+
 export function Header() {
   const pathname = usePathname();
 
